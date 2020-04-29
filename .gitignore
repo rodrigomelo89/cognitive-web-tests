@@ -1,0 +1,15 @@
+*.pyc
+*~
+/.vscode
+__pycache__
+webapp-env
+Robot
+Kivy
+outros
+db.sqlite3
+/static
+.DS_Store
+fluencia.py
+ggl_code.py
+recording_pc.py
+utils.py
