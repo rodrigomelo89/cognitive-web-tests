@@ -1,3 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def exams_list(request):
+    return render(request, 'frontpage/exams_list.html', {})
