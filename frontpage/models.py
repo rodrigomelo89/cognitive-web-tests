@@ -12,5 +12,5 @@ class Exams(models.Model):
     # audio =
     resultados = models.TextField()
 
-    def examination(self):
+    def publish(self):
         self.save()

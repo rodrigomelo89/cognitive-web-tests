@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from .models import Exams
 
 
 def exams_list(request):
-    return render(request, 'frontpage/exams_list.html', {})
+    exames = Exams.objects.order_by('idade')
+    return render(request, 'frontpage/exams_list.html', {'exames': exames})
