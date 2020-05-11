@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import Exams
+from .models import Exame
 
-admin.site.register(Exams)
+admin.site.register(Exame)
+# admin.site.register(Post)

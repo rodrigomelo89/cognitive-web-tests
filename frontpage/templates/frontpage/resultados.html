@@ -1,0 +1,11 @@
+{% extends 'frontpage/base.html' %}
+
+{% block content %}
+    {% for exame in exames %}
+        <div class="post">
+            <h2><a href=""> paciente: {{ exame.paciente }}</a></h2>
+            <p>idade: {{ exame.idade }}, tempo de estudo: {{ exame.tempo_estudo }}, genero: {{ exame.genero }} </p>
+            <p>{{ exame.resultados|linebreaksbr }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}
