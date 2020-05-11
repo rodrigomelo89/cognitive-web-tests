@@ -8,6 +8,10 @@ class ExameForm(forms.ModelForm):
         model = Exame
         fields = ('paciente', 'idade', 'tempo_estudo', 'genero',)
 
-    class Beta:
+
+class ResultsForm(forms.ModelForm):
+
+    class Meta:
         model = Exame
         fields = ('resultados',)
+

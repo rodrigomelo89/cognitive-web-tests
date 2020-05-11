@@ -1,7 +1,9 @@
 {% extends 'frontpage/base.html' %}
 
 {% block content %}
-    <div class="post">
-        <p>teste auto_teste</p>
-    </div>
+    <h2>Novo Teste</h2>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ test.as_p }}
+        <button type="submit" class="save btn btn-default">Salvar</button>
+    </form>
 {% endblock %}
