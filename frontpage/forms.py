@@ -2,16 +2,12 @@ from django import forms
 from .models import Exame
 
 
-class ExameForm(forms.ModelForm):
+class ExameForm(forms.ModelForm):  # formulário
 
     class Meta:
-        model = Exame
-        fields = ('paciente', 'idade', 'tempo_estudo', 'genero',)
+        model = Exame  # busca o modelo
+        fields = ('paciente', 'idade', 'tempo_estudo', 'genero',)  #dados a serem preenchidos
 
 
-class ResultsForm(forms.ModelForm):
 
-    class Meta:
-        model = Exame
-        fields = ('resultados',)
 

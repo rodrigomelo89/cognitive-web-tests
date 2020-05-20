@@ -1,5 +1,13 @@
 {% extends 'frontpage/base.html' %}
 
 {% block content %}
-    {{ results.resultados }}
+    <div>
+        <p>Resultado do teste: {{ nota }}</p>
+    </div>
+    <div>
+        {% for animal in results %}
+            <p>{{ animal }}</p>
+        {% endfor %}
+        {{ palavras }}
+    </div>
 {% endblock %}
