@@ -12,8 +12,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ExameForm
 
 
-trans = None  # variavel global pra salvar a transcrição
-
+# trans = None  # variavel global pra salvar a transcrição
+audio = None  # variavel global pra salvar o caminho do audio
 
 def post_list(request):  # página inicial
     return render(request, 'frontpage/post.html', {})
@@ -35,9 +35,8 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
     results = get_object_or_404(Exame, pk=pk)  # pega os dados do paciente q preencheu o formulário na pag anterior
     if request.method == 'POST':  # aguarda o botão ser clicado
         # TODO ajustar o tempo na chamada da função de gravação
+        global audio  # acessa a variavel global
         audio = recording_pc.recording_mic(5, 'experiment', results.paciente)  # grava o áudio que será usado
-        global trans  # acessa a variavel global
-        trans = ggl_code.transcribe_file(audio)  # reconhece o audio e salva o resultado na variavel global
         # redireciona pra página onde será exibido os resultados
         return redirect('respostas', pk=results.pk)
     # pra exibir a página do teste
@@ -46,7 +45,8 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
 
 def respostas(request, pk):  # página onde será exibido os resultados
     result = Exame.objects.get(pk=pk)  # busca os dados do paciente correto
-    global trans  # acessa a variavel global
+    global audio  # acessa a variavel global
+    trans = ggl_code.transcribe_file(audio)  # reconhece o audio e salva o resultado na variavel global
     result.transcri = trans.results[0].alternatives[0].transcript  # salva a transcrição na ficha do paciente
     lista_palavras = fluencia.distinguish_words(result.transcri)  # separa as palavras identificadas numa lista
     result.nota, result.resultados = fluencia.fluencia(lista_palavras)  # calcula a pontuação do teste e salva os

@@ -1,8 +1,25 @@
 {% extends 'frontpage/base.html' %}
 
 {% block content %}
-    <h2>Novo Teste</h2>
+    <div>
+        <h2>Teste de Fluência Verbal Semântica</h2>
+        <p>Esse teste consiste em se falar o maior número de animais que o(a) paciente conseguir lembrar dentro do <br>
+            intervalo de 1 minuto. Para realizar o teste através desse site, por favor verifique a presença <br>
+            do microfone e quando estiver pronto clique no botão abaixo.</p>
+    </div>
+    <div>
+        Status: <input type="text" id="status" value="Aguardando"><br><br>
+    </div>
     <form method="POST" class="post-form">{% csrf_token %}
-        <button type="submit" class="save btn btn-default">Gravando</button>
+        <button onclick="gravando()" type="submit" class="save btn btn-default">Gravar</button>
     </form>
+
+    <script>
+        function gravando() {
+            document.getElementById("status").value = 'Gravando';
+            setTimeout(function(){
+            document.getElementById("status").value = 'Processando';
+            }, 5000);
+            }
+    </script>
 {% endblock %}
