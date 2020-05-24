@@ -1,5 +1,12 @@
 {% extends 'frontpage/base.html' %}
 
+{% load static %}
+
+    <head>
+        <meta charset="UTF-8">
+    </head>
+
+
 {% block content %}
     <div>
         <h2>Teste de Fluência Verbal Semântica</h2>
@@ -7,19 +14,71 @@
             intervalo de 1 minuto. Para realizar o teste através desse site, por favor verifique a presença <br>
             do microfone e quando estiver pronto clique no botão abaixo.</p>
     </div>
+
     <div>
-        Status: <input type="text" id="status" value="Aguardando"><br><br>
+        <form method="POST" class="post-form">{% csrf_token %}
+            Status2: <input type="text" id="status2" value="Aguardando">
+        </form>
+        <button id="rec" onclick="record(name)">Record</button>
     </div>
-    <form method="POST" class="post-form">{% csrf_token %}
-        <button onclick="gravando()" type="submit" class="save btn btn-default">Gravar</button>
-    </form>
 
     <script>
-        function gravando() {
-            document.getElementById("status").value = 'Gravando';
-            setTimeout(function(){
-            document.getElementById("status").value = 'Processando';
-            }, 5000);
-            }
+        function record(name) {
+            let constraintObj = { audio: true, video: false }
+
+            navigator.permissions.query({name: "microphone"}).then(function(perm) {
+                document.getElementById("status2").value = 'entrei aqui';
+                if (perm.state === 'granted') {
+                    navigator.mediaDevices.getUserMedia(constraintObj)
+                        .then(stream => {
+                            const mediaRecorder = new MediaRecorder(stream);
+                            document.getElementById("status2").value = 'gravando';
+                            rec.disabled = true;
+                            //rec.style.backgroundColor = "blue";
+                            mediaRecorder.start();
+
+                            const chunks = [];
+
+                            mediaRecorder.addEventListener("dataavailable", event => {
+                                chunks.push(event.data);
+                            });
+
+                            mediaRecorder.addEventListener("stop", () => {
+                                const audioBlob = new Blob(chunks,{type: 'audio/wav'});
+                                const audioUrl = URL.createObjectURL(audioBlob);
+                                const audio = new Audio(audioUrl);
+                                audio.play();
+                                //var xhr = new XMLHttpRequest();
+                                //xhr.onload = function(e) {
+                                //    if(this.readyState === 4) {
+                                //        console.log("Server returned: ",e.target.responseText);
+                                //    }
+                                //};
+                                //var fd = new FormData();
+                                //fd.append("audio_data", audioBlob, name);
+                                //xhr.open("POST", "http://192.168.0.13:8000/er/", true);
+                                //xhr.send(fd);
+                            });
+
+                            setTimeout(() => {
+                                document.getElementById("status2").value = 'processando';
+                                mediaRecorder.stop();
+                            }, 3000);
+
+                        });
+                } else if (perm.state === 'denied') {
+                    document.getElementById("status2").value = 'fudeu';
+                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                } else if (perm.state === 'prompt') {
+                    document.getElementById("status2").value = 'cade?';
+                    record(name);
+                }
+            })
+            .catch(function(err) {
+                //document.getElementById("status2").value = 'deu ruim';
+                console.log(err.name, err.message);
+            });
+        }
     </script>
+
 {% endblock %}

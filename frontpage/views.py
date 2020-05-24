@@ -10,10 +10,12 @@ from django.shortcuts import render
 from .models import Exame
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ExameForm
+import wave
 
 
 # trans = None  # variavel global pra salvar a transcrição
 audio = None  # variavel global pra salvar o caminho do audio
+
 
 def post_list(request):  # página inicial
     return render(request, 'frontpage/post.html', {})
@@ -25,7 +27,7 @@ def formulario(request):  # página de formulário
         if form.is_valid():  # verifica se os campos foram preenchidos
             formComp = form.save()  # salva o formulário
             # redireciona para a próxima página, o pk (primary key) do paciente vai tá vinculado ao form
-            return redirect('teste_cognitivo', pk=formComp.pk)
+            return redirect('cognitive_webapp:teste', pk=formComp.pk)
     else:
         form = ExameForm()  # pra manter exibindo a página do form sem tá preenchido
     return render(request, 'frontpage/formulario.html', {'form': form})
@@ -33,14 +35,26 @@ def formulario(request):  # página de formulário
 
 def teste_cognitivo(request, pk):  # página onde será realizado o teste de fluencia verbal
     results = get_object_or_404(Exame, pk=pk)  # pega os dados do paciente q preencheu o formulário na pag anterior
+    # print('to aqui')
     if request.method == 'POST':  # aguarda o botão ser clicado
+        # print(request.FILES.get('data'))
+        # audio_data = request.FILES.get('data')
+        # print(type(audio_data), audio_data.size)
+        # audio = wave.open('test.wav', 'wb')
+        # audio.setnchannels(1)
+        # audio.setnframes(1)
+        # audio.setsampwidth(1)
+        # audio.setframerate(16000)
+        # blob = audio_data.read()
+        # audio.writeframes(blob)
+        # código usando o pyaudio
         # TODO ajustar o tempo na chamada da função de gravação
         global audio  # acessa a variavel global
         audio = recording_pc.recording_mic(5, 'experiment', results.paciente)  # grava o áudio que será usado
         # redireciona pra página onde será exibido os resultados
-        return redirect('respostas', pk=results.pk)
+        return redirect('cognitive_webapp:respostas', pk=results.pk)
     # pra exibir a página do teste
-    return render(request, 'frontpage/teste_cognitivo.html', {})
+    return render(request, 'frontpage/teste_cognitivo.html', {'name': results.paciente})
 
 
 def respostas(request, pk):  # página onde será exibido os resultados
