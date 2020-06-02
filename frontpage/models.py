@@ -11,6 +11,7 @@ class Exame(models.Model):  # modelo do exame
     resultados = models.TextField()  # campo de texto grande
     nota = models.IntegerField(default=0)
     transcri = models.TextField()
+    audioRecorded = models.FileField(upload_to='media/', blank=True)
 
     def publish(self):
         self.save()

@@ -9,7 +9,8 @@ import fluencia, recording_pc, ggl_code
 from django.shortcuts import render
 from .models import Exame
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ExameForm
+from .forms import ExameForm, TestForm
+from django.http import HttpResponse
 import wave
 
 
@@ -35,26 +36,14 @@ def formulario(request):  # página de formulário
 
 def teste_cognitivo(request, pk):  # página onde será realizado o teste de fluencia verbal
     results = get_object_or_404(Exame, pk=pk)  # pega os dados do paciente q preencheu o formulário na pag anterior
-    # print('to aqui')
-    if request.method == 'POST':  # aguarda o botão ser clicado
-        # print(request.FILES.get('data'))
-        # audio_data = request.FILES.get('data')
-        # print(type(audio_data), audio_data.size)
-        # audio = wave.open('test.wav', 'wb')
-        # audio.setnchannels(1)
-        # audio.setnframes(1)
-        # audio.setsampwidth(1)
-        # audio.setframerate(16000)
-        # blob = audio_data.read()
-        # audio.writeframes(blob)
-        # código usando o pyaudio
-        # TODO ajustar o tempo na chamada da função de gravação
-        global audio  # acessa a variavel global
-        audio = recording_pc.recording_mic(5, 'experiment', results.paciente)  # grava o áudio que será usado
+    print('to aqui', results.paciente, type(request.FILES.get(results.paciente)))
+    if request.method == 'POST' and request.FILES['fd']:  # aguarda o botão ser clicado
+        print('aaaaaaa', type(request.FILES.get(results.paciente)))
+
         # redireciona pra página onde será exibido os resultados
         return redirect('cognitive_webapp:respostas', pk=results.pk)
     # pra exibir a página do teste
-    return render(request, 'frontpage/teste_cognitivo.html', {'name': results.paciente})
+    return render(request, 'frontpage/teste_cognitivo.html', {'paciente': results.paciente, 'arquivo': results.audioRecorded})
 
 
 def respostas(request, pk):  # página onde será exibido os resultados

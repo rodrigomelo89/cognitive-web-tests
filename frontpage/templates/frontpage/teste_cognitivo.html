@@ -16,68 +16,151 @@
     </div>
 
     <div>
-        <form method="POST" class="post-form">{% csrf_token %}
+        <form method="POST" class="postform" enctype="multipart/form-data" id="sendData">
+            {% csrf_token %}
+<!--            {{ test.as_p }}-->
             Status2: <input type="text" id="status2" value="Aguardando">
+            <input type="hidden" id="pacienteID" value="{{paciente}}">
         </form>
-        <button id="rec" onclick="record(name)">Record</button>
+        <button id="rec" onclick="record(paciente())">Record</button>
     </div>
 
     <script>
-        function record(name) {
+        function paciente() {
+            var x = document.getElementById("pacienteID").value;
+            return x
+        }
+
+        function record(pac) {
+            document.getElementById("status2").value = pac;
             let constraintObj = { audio: true, video: false }
-
-            navigator.permissions.query({name: "microphone"}).then(function(perm) {
-                document.getElementById("status2").value = 'entrei aqui';
-                if (perm.state === 'granted') {
-                    navigator.mediaDevices.getUserMedia(constraintObj)
-                        .then(stream => {
-                            const mediaRecorder = new MediaRecorder(stream);
-                            document.getElementById("status2").value = 'gravando';
-                            rec.disabled = true;
-                            //rec.style.backgroundColor = "blue";
-                            mediaRecorder.start();
-
-                            const chunks = [];
-
-                            mediaRecorder.addEventListener("dataavailable", event => {
-                                chunks.push(event.data);
-                            });
-
-                            mediaRecorder.addEventListener("stop", () => {
-                                const audioBlob = new Blob(chunks,{type: 'audio/wav'});
-                                const audioUrl = URL.createObjectURL(audioBlob);
-                                const audio = new Audio(audioUrl);
-                                audio.play();
-                                //var xhr = new XMLHttpRequest();
-                                //xhr.onload = function(e) {
-                                //    if(this.readyState === 4) {
-                                //        console.log("Server returned: ",e.target.responseText);
-                                //    }
-                                //};
-                                //var fd = new FormData();
-                                //fd.append("audio_data", audioBlob, name);
-                                //xhr.open("POST", "http://192.168.0.13:8000/er/", true);
-                                //xhr.send(fd);
-                            });
-
-                            setTimeout(() => {
-                                document.getElementById("status2").value = 'processando';
-                                mediaRecorder.stop();
-                            }, 3000);
-
-                        });
-                } else if (perm.state === 'denied') {
-                    document.getElementById("status2").value = 'fudeu';
-                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-                } else if (perm.state === 'prompt') {
-                    document.getElementById("status2").value = 'cade?';
-                    record(name);
+            if (navigator.mediaDevices === undefined) {
+                navigator.mediaDevices = {};
+                navigator.mediaDevices.getUserMedia = function(constraintObj) {
+                    let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                    if (!getUserMedia) {
+                        document.getElementById("status2").value = 'fudeu';
+                        return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                    }
+                    return new Promise(function(resolve, reject) {
+                        document.getElementById("status2").value = 'cheguei aqui';
+                        getUserMedia.call(navigator, constraintObj, resolve, reject);
+                    });
                 }
+            } else {
+                document.getElementById("status2").value = 'olha esses devices';
+                navigator.mediaDevices.enumerateDevices()
+                .then(devices => {
+                    devices.forEach(device=>{
+                        console.log(device.kind.toUpperCase(), device.label);
+                        //, device.deviceId
+                    })
+                })
+                .catch(err=>{
+                    console.log(err.name, err.message);
+                })
+            }
+
+            navigator.mediaDevices.getUserMedia(constraintObj).then(stream => {
+                const mediaRecorder = new MediaRecorder(stream);
+                document.getElementById("status2").value = 'gravando';
+                rec.disabled = true;
+                //rec.style.backgroundColor = "blue";
+                mediaRecorder.start();
+
+                const chunks = [];
+
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    chunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(chunks,{type: 'audio/wav'});
+
+                    // código pra mandar o audio pro servidor/backend
+                    //document.getElementById("audio_data").value = audioBlob;
+                    //document.getElementById("sendData").click();
+                    document.getElementById("status2").value = 'processando';
+                    //upload(audioBlob,pac);
+
+                    //testaAudio(audioBlob);
+                });
+
+                setTimeout(() => {
+                    document.getElementById("status2").value = 'processando';
+                    mediaRecorder.stop();
+                }, 3000);
             })
             .catch(function(err) {
-                //document.getElementById("status2").value = 'deu ruim';
+                document.getElementById("status2").value = 'deu ruim';
                 console.log(err.name, err.message);
             });
+        }
+
+        function getCookie(pac) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, pac.length + 1) == (pac + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(pac.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function upload(blob,pac) {
+            var csrftoken = getCookie('csrftoken');
+            document.getElementById("status2").value = 'upando';
+            var xhr = new XMLHttpRequest();
+            var fd = new FormData();
+            fd.append("audio_data", blob);
+            xhr.open('POST', 'http://127.0.0.1:8000/media/', true);
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            xhr.setRequestHeader("MyCustomHeader", pac);
+
+            xhr.upload.onloadend = function() {
+                alert('Upload complete');
+            };
+            // If you want you can show the upload progress using a progress bar
+            //var progressBar = document.querySelector('progress');
+            //xhr.upload.onprogress = function(e) {
+            //   if (e.lengthComputable) {
+            //        progressBar.value = (e.loaded / e.total) * 100;
+            //        progressBar.textContent = progressBar.value; // Fallback for unsupported browsers.
+            //    }
+            //};
+
+            xhr.send(fd);
+
+            document.getElementById("sendData").submit();
+        }
+
+        function upload1(blob){
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function(e) {
+                if(this.readyState === 4) {
+                    console.log("Server returned: ",e.target.responseText);
+                }
+            };
+            var fd = new FormData();
+            fd.append("audio_data", blob);
+            xhr.open("POST", "http://127.0.0.1:8000/media/", true);
+            xhr.send(fd);
+            document.getElementById("status2").value = fd;
+            document.getElementById("sendData").submit();
+        }
+    </script>
+
+    <script>
+        function testaAudio(blob){
+            const audioUrl = URL.createObjectURL(blob);
+            const audio = new Audio(audioUrl);
+            audio.play();
         }
     </script>
 

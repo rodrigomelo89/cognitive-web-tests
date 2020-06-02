@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 app_name = 'cognitive_webapp'
 
@@ -10,3 +12,6 @@ urlpatterns = [
     path('teste_cognitivo/<int:pk>/', views.teste_cognitivo, name='teste'),
     path('teste_cognitivo/resultados/<int:pk>/', views.respostas, name='respostas'),
 ]
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -9,5 +9,8 @@ class ExameForm(forms.ModelForm):  # formulário
         fields = ('paciente', 'idade', 'tempo_estudo', 'genero',)  #dados a serem preenchidos
 
 
+class TestForm(forms.ModelForm):
 
-
+    class Meta:
+        model = Exame
+        fields = ('audioRecorded',)
