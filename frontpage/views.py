@@ -11,11 +11,10 @@ from .models import Exame
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ExameForm, TestForm
 from django.http import HttpResponse
-import wave
 
 
 # trans = None  # variavel global pra salvar a transcrição
-audio = None  # variavel global pra salvar o caminho do audio
+file_path = 'C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\'  # variavel global pra salvar o caminho do audio
 
 
 def post_list(request):  # página inicial
@@ -36,25 +35,33 @@ def formulario(request):  # página de formulário
 
 def teste_cognitivo(request, pk):  # página onde será realizado o teste de fluencia verbal
     results = get_object_or_404(Exame, pk=pk)  # pega os dados do paciente q preencheu o formulário na pag anterior
-    print('to aqui', results.paciente, type(request.FILES.get(results.paciente)))
-    if request.method == 'POST' and request.FILES['fd']:  # aguarda o botão ser clicado
-        print('aaaaaaa', type(request.FILES.get(results.paciente)))
-
+    # print('to aqui', results.paciente, type(request.FILES.get(results.paciente)))
+    if request.method == 'POST':  # aguarda o botão ser clicado
+        # print("### chegou aqui ###")
+        # print(request.FILES['banda'])
+        global file_path
+        file_path += results.paciente+'.wav'
+        with open(file_path, 'wb+') as destination:
+            for chunk in request.FILES['banda'].chunks():
+                destination.write(chunk)
         # redireciona pra página onde será exibido os resultados
         return redirect('cognitive_webapp:respostas', pk=results.pk)
     # pra exibir a página do teste
-    return render(request, 'frontpage/teste_cognitivo.html', {'paciente': results.paciente, 'arquivo': results.audioRecorded})
+    return render(request, 'frontpage/teste_cognitivo.html', {'paciente': results.paciente, 'key': pk})
 
 
 def respostas(request, pk):  # página onde será exibido os resultados
     result = Exame.objects.get(pk=pk)  # busca os dados do paciente correto
-    global audio  # acessa a variavel global
-    trans = ggl_code.transcribe_file(audio)  # reconhece o audio e salva o resultado na variavel global
-    result.transcri = trans.results[0].alternatives[0].transcript  # salva a transcrição na ficha do paciente
-    lista_palavras = fluencia.distinguish_words(result.transcri)  # separa as palavras identificadas numa lista
-    result.nota, result.resultados = fluencia.fluencia(lista_palavras)  # calcula a pontuação do teste e salva os
-                                                                      # animais reconhecidos
-    result.save()
+    global file_path
+    trans = ggl_code.transcribe_file(file_path)  # reconhece o audio
+    # global file_path
+    file_path = "C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\"
+    print(trans.results, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+    # result.transcri = trans.results[0].alternatives[0].transcript  # salva a transcrição na ficha do paciente
+    # lista_palavras = fluencia.distinguish_words(result.transcri)  # separa as palavras identificadas numa lista
+    # result.nota, result.resultados = fluencia.fluencia(lista_palavras)  # calcula a pontuação do teste e salva os
+    #                                                                   # animais reconhecidos
+    # result.save()
     # exibe a página de resultados
     return render(request, 'frontpage/resultados.html', {'results': result.resultados, 'palavras': result.transcri,
                                                          'nota': result.nota})

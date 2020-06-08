@@ -15,15 +15,14 @@
             do microfone e quando estiver pronto clique no botão abaixo.</p>
     </div>
 
-    <div>
-        <form method="POST" class="postform" enctype="multipart/form-data" id="sendData">
-            {% csrf_token %}
-<!--            {{ test.as_p }}-->
-            Status2: <input type="text" id="status2" value="Aguardando">
-            <input type="hidden" id="pacienteID" value="{{paciente}}">
-        </form>
-        <button id="rec" onclick="record(paciente())">Record</button>
+    <div class="post">
+        Status2: <input type="text" id="status2" value="Aguardando">
+        <input type="hidden" id="pacienteID" value="{{paciente}}">
+        <button id="gravar" onclick="record(paciente())">Record</button>
+<!--        <audio id=recordedAudio style="display:none;"></audio>-->
     </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
     <script>
         function paciente() {
@@ -32,8 +31,14 @@
         }
 
         function record(pac) {
-            document.getElementById("status2").value = pac;
-            let constraintObj = { audio: true, video: false }
+            let constraintObj = {
+                audio: {
+                    sampleSize: 16,
+                    channelCount: 1,
+                    sampleRate: 16000
+                },
+                video: false
+            }
             if (navigator.mediaDevices === undefined) {
                 navigator.mediaDevices = {};
                 navigator.mediaDevices.getUserMedia = function(constraintObj) {
@@ -60,107 +65,49 @@
                     console.log(err.name, err.message);
                 })
             }
-
-            navigator.mediaDevices.getUserMedia(constraintObj).then(stream => {
-                const mediaRecorder = new MediaRecorder(stream);
-                document.getElementById("status2").value = 'gravando';
-                rec.disabled = true;
-                //rec.style.backgroundColor = "blue";
-                mediaRecorder.start();
-
-                const chunks = [];
-
-                mediaRecorder.addEventListener("dataavailable", event => {
-                    chunks.push(event.data);
-                });
-
-                mediaRecorder.addEventListener("stop", () => {
-                    const audioBlob = new Blob(chunks,{type: 'audio/wav'});
-
-                    // código pra mandar o audio pro servidor/backend
-                    //document.getElementById("audio_data").value = audioBlob;
-                    //document.getElementById("sendData").click();
-                    document.getElementById("status2").value = 'processando';
-                    //upload(audioBlob,pac);
-
-                    //testaAudio(audioBlob);
-                });
-
-                setTimeout(() => {
-                    document.getElementById("status2").value = 'processando';
-                    mediaRecorder.stop();
-                }, 3000);
-            })
-            .catch(function(err) {
-                document.getElementById("status2").value = 'deu ruim';
-                console.log(err.name, err.message);
-            });
+            navigator.mediaDevices.getUserMedia(constraintObj)
+                .then(stream => { handlerFunction(stream) })
         }
 
-        function getCookie(pac) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, pac.length + 1) == (pac + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(pac.length + 1));
-                        break;
-                    }
+        function handlerFunction(stream) {
+            document.getElementById("status2").value = 'gravando';
+            gravar.disabled = true;
+            rec = new MediaRecorder(stream);
+            audioChunks = [];
+            rec.start();
+            setTimeout(() => {
+                document.getElementById("status2").value = 'processando';
+                rec.stop();
+            }, 5000);
+            rec.ondataavailable = e => {
+                audioChunks.push(e.data);
+                if (rec.state == "inactive") {
+                    let blob = new Blob(audioChunks, { type: 'audio/wav' });
+                    //recordedAudio.src = URL.createObjectURL(blob);
+                    //recordedAudio.controls = true;
+                    //recordedAudio.autoplay = true;
+                    sendData(blob)
                 }
             }
-            return cookieValue;
         }
 
-        function upload(blob,pac) {
-            var csrftoken = getCookie('csrftoken');
-            document.getElementById("status2").value = 'upando';
-            var xhr = new XMLHttpRequest();
+        function sendData(blob) {
+
+            console.log("teste")
+            console.log(blob)
+            console.log({{ key }})
             var fd = new FormData();
-            fd.append("audio_data", blob);
-            xhr.open('POST', 'http://127.0.0.1:8000/media/', true);
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            xhr.setRequestHeader("MyCustomHeader", pac);
-
-            xhr.upload.onloadend = function() {
-                alert('Upload complete');
-            };
-            // If you want you can show the upload progress using a progress bar
-            //var progressBar = document.querySelector('progress');
-            //xhr.upload.onprogress = function(e) {
-            //   if (e.lengthComputable) {
-            //        progressBar.value = (e.loaded / e.total) * 100;
-            //        progressBar.textContent = progressBar.value; // Fallback for unsupported browsers.
-            //    }
-            //};
-
-            xhr.send(fd);
-
-            document.getElementById("sendData").submit();
-        }
-
-        function upload1(blob){
-            var xhr = new XMLHttpRequest();
-            xhr.onload = function(e) {
-                if(this.readyState === 4) {
-                    console.log("Server returned: ",e.target.responseText);
-                }
-            };
-            var fd = new FormData();
-            fd.append("audio_data", blob);
-            xhr.open("POST", "http://127.0.0.1:8000/media/", true);
-            xhr.send(fd);
-            document.getElementById("status2").value = fd;
-            document.getElementById("sendData").submit();
-        }
-    </script>
-
-    <script>
-        function testaAudio(blob){
-            const audioUrl = URL.createObjectURL(blob);
-            const audio = new Audio(audioUrl);
-            audio.play();
+            fd.append('fname', 'test.wav');
+            fd.append('banda', blob);
+            fd.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+            $.ajax({
+                type: 'POST',
+                //url: 'http://127.0.0.1:8000/teste_cognitivo/'+{{ key }}+'/',
+                data: fd,
+                cache: false,
+                contentType: false,
+                processData: false,
+            })
         }
     </script>
 
