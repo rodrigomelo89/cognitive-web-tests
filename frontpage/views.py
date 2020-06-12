@@ -5,7 +5,8 @@
 import sys
 sys.path.insert(1,'C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes')  # pra poder fazer os imports de outro dir
 
-import fluencia, recording_pc, ggl_code
+import fluencia, recording_pc, ggl_code, convert2wav
+from pydub import AudioSegment
 from django.shortcuts import render
 from .models import Exame
 from django.shortcuts import render, redirect, get_object_or_404
@@ -18,6 +19,8 @@ file_path = 'C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\'  
 
 
 def post_list(request):  # página inicial
+    global file_path
+    file_path = "C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\"  # reseta o valor do path
     return render(request, 'frontpage/post.html', {})
 
 
@@ -35,15 +38,15 @@ def formulario(request):  # página de formulário
 
 def teste_cognitivo(request, pk):  # página onde será realizado o teste de fluencia verbal
     results = get_object_or_404(Exame, pk=pk)  # pega os dados do paciente q preencheu o formulário na pag anterior
-    # print('to aqui', results.paciente, type(request.FILES.get(results.paciente)))
     if request.method == 'POST':  # aguarda o botão ser clicado
-        # print("### chegou aqui ###")
-        # print(request.FILES['banda'])
+        # acessa variavel global do caminho do arquivo
         global file_path
-        file_path += results.paciente+'.wav'
-        with open(file_path, 'wb+') as destination:
+        file_path += results.paciente+'.wav'  # adiciona o nome do arquivo
+        with open(file_path, 'wb+') as destination:  # abre o arquivo
             for chunk in request.FILES['banda'].chunks():
-                destination.write(chunk)
+                destination.write(chunk)  # salva o arquivo de audio
+        convert2wav.convert2wav(file_path, file_path)  # converte o arquivo em wav com 16 bits per sample
+        print('passei aqui', file_path, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
         # redireciona pra página onde será exibido os resultados
         return redirect('cognitive_webapp:respostas', pk=results.pk)
     # pra exibir a página do teste
@@ -53,15 +56,16 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
 def respostas(request, pk):  # página onde será exibido os resultados
     result = Exame.objects.get(pk=pk)  # busca os dados do paciente correto
     global file_path
+    # print(file_path, 'aqui aqui aqui aqui')
     trans = ggl_code.transcribe_file(file_path)  # reconhece o audio
-    # global file_path
-    file_path = "C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\"
-    print(trans.results, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-    # result.transcri = trans.results[0].alternatives[0].transcript  # salva a transcrição na ficha do paciente
-    # lista_palavras = fluencia.distinguish_words(result.transcri)  # separa as palavras identificadas numa lista
-    # result.nota, result.resultados = fluencia.fluencia(lista_palavras)  # calcula a pontuação do teste e salva os
+
+    result.transcri = trans.results[0].alternatives[0].transcript  # salva a transcrição na ficha do paciente
+    lista_palavras = fluencia.distinguish_words(result.transcri)  # separa as palavras identificadas numa lista
+    result.nota, result.resultados = fluencia.fluencia(lista_palavras)  # calcula a pontuação do teste e salva os
     #                                                                   # animais reconhecidos
-    # result.save()
+    result.save()
+    print(result.transcri, lista_palavras, result.nota, result.resultados)
+
     # exibe a página de resultados
     return render(request, 'frontpage/resultados.html', {'results': result.resultados, 'palavras': result.transcri,
                                                          'nota': result.nota})

@@ -78,11 +78,12 @@
             setTimeout(() => {
                 document.getElementById("status2").value = 'processando';
                 rec.stop();
+                console.log('parei de gravar')
             }, 5000);
             rec.ondataavailable = e => {
                 audioChunks.push(e.data);
                 if (rec.state == "inactive") {
-                    let blob = new Blob(audioChunks, { type: 'audio/wav' });
+                    let blob = new Blob(audioChunks, { type: 'audio/wav;codecs=0' });
                     //recordedAudio.src = URL.createObjectURL(blob);
                     //recordedAudio.controls = true;
                     //recordedAudio.autoplay = true;
@@ -93,21 +94,26 @@
 
         function sendData(blob) {
 
-            console.log("teste")
-            console.log(blob)
-            console.log({{ key }})
+            //console.log("teste")
+            //console.log(blob)
+            //console.log({{ key }})
             var fd = new FormData();
             fd.append('fname', 'test.wav');
             fd.append('banda', blob);
             fd.append('csrfmiddlewaretoken', '{{ csrf_token }}')
             $.ajax({
                 type: 'POST',
-                //url: 'http://127.0.0.1:8000/teste_cognitivo/'+{{ key }}+'/',
+                //url: 'http://127.0.0.1:8000/teste_cognitivo/resultados/'+{{ key }}+'/',
                 data: fd,
                 cache: false,
                 contentType: false,
                 processData: false,
-            })
+                success: function (data) {
+                    window.location = 'http://127.0.0.1:8000/teste_cognitivo/resultados/'+{{ key }}+'/'
+                }
+            }).done(function(data) {
+                //console.log('funfou');
+            });
         }
     </script>
 

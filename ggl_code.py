@@ -19,7 +19,7 @@ def transcribe_file(speech_file):
 
     config = types.RecognitionConfig(  # configuração a ser usada no reconhecimento
         encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=16000,
+        sample_rate_hertz=48000,
         language_code='pt-BR',
         speech_contexts=[{"phrases": utils.list_animals}]  # dica para reconhecimento
     )

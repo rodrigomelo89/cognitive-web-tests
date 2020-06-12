@@ -9,9 +9,9 @@ def distinguish_words(trans):
     # função para separar uma frase em palavra por palavra
     j = 0  # apenas um incrementador
     first_read = []  # variavel onde será salvo a frase
-    # TODO ajustas as duas linhas abaixo quando usar a api do google, retirar o [i] do trans tb
-    for i in range(len(trans.results)):
-        first_read.append(trans.results[i].alternatives[0].transcript)
+    # TODO ajustar as duas linhas abaixo quando usar a api do google, retirar o [i] do trans tb
+    for i in range(len(trans)):  #.results)):
+        first_read.append(trans[i])  #.results[i].alternatives[0].transcript)
     # print(first_read)
     mid_word = [[]]  # variavel para montar as palavras reconhecidas
     for x in range(len(first_read)):  # loop pra olhar quantas frases tem

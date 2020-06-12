@@ -51,6 +51,7 @@ def recording_mic(s, experiment, namefile):
     wf = wave.open(file_path, 'wb')
     # (os.path.join(r'C:\Users\Rodrigo Melo\Documents\fluencia-NAO\audios', experiment + filename), 'wb')
     wf.setnchannels(channels)
+    print(p.get_sample_size(sample_format))
     wf.setsampwidth(p.get_sample_size(sample_format))
     wf.setframerate(fs)
     wf.writeframes(b''.join(frames))
