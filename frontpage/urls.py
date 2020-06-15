@@ -13,4 +13,4 @@ urlpatterns = [
     path('teste_cognitivo/resultados/<int:pk>/', views.respostas, name='respostas'),
 ]
 
-
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

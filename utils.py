@@ -110,7 +110,7 @@ list_animals = ["aardvark", "babuíno", "cabra", "doninha", "elefante", "falcão
                 "Mosquito", "Pica-pau", "Chinchila", "Muçurana", "Pinguim", "Chita", " mula", "Piolho", " cigarra",
                 "Musaranho", "Piranha", " coala", " pirarucu", "Codorna", " polvo", "Cutia", " pombo", "Pônei",
                 "Porco", "Porco-espinho", "Porquinho-da-índia", "Preá", "Preguiça", "Pulga", "guepardo", "Guepardo",
-                "passarinho", "Passarinho", "umbrella"]
+                "passarinho", "Passarinho", "Muriçoca", "muriçoca", "umbrella"]
 
 
 def convertStr2SignedInt(data):

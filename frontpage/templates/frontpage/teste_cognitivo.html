@@ -103,13 +103,12 @@
             fd.append('csrfmiddlewaretoken', '{{ csrf_token }}')
             $.ajax({
                 type: 'POST',
-                //url: 'http://127.0.0.1:8000/teste_cognitivo/resultados/'+{{ key }}+'/',
                 data: fd,
                 cache: false,
                 contentType: false,
                 processData: false,
                 success: function (data) {
-                    window.location = 'http://127.0.0.1:8000/teste_cognitivo/resultados/'+{{ key }}+'/'
+                    window.location = '/teste_cognitivo/resultados/'+{{ key }}+'/'
                 }
             }).done(function(data) {
                 //console.log('funfou');

@@ -8,6 +8,7 @@ Kivy
 outros
 db.sqlite3
 /static
+/media
 archive.html
 recording_pc.py
 .DS_Store
