@@ -61,13 +61,13 @@ def respostas(request, pk):  # página onde será exibido os resultados
     global file_path
     print(file_path, 'aqui aqui aqui aqui')
     trans = ggl_code.transcribe_file(file_path)  # reconhece o audio
-
-    result.transcri = trans.results[0].alternatives.transcript  # salva a transcrição na ficha do paciente
-    lista_palavras = fluencia.distinguish_words(result.transcri)  # separa as palavras identificadas numa lista
-    result.nota, result.resultados = fluencia.fluencia(lista_palavras)  # calcula a pontuação do teste e salva os
+    print(trans)
+    result.transcri = fluencia.distinguish_words(trans)  # separa as palavras identificadas numa lista e salva na ficha
+                                                        # do paciente
+    result.nota, result.resultados = fluencia.fluencia(result.transcri)  # calcula a pontuação do teste e salva os
                                                                         # animais reconhecidos
     result.save()
-    print(result.transcri, lista_palavras, result.nota, result.resultados)
+    print(result.transcri, result.transcri, result.nota, result.resultados)
 
     # exibe a página de resultados
     return render(request, 'frontpage/resultados.html', {'results': result.resultados, 'palavras': result.transcri,

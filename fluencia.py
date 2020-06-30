@@ -9,9 +9,8 @@ def distinguish_words(trans):
     # função para separar uma frase em palavra por palavra
     j = 0  # apenas um incrementador
     first_read = []  # variavel onde será salvo a frase
-    # TODO as duas linhas abaixo funciona, em outra versão funcionou sem os comentarios abaixo
-    for i in range(len(trans)):  #.results)):
-        first_read.append(trans[i])  #.results[i].alternatives[0].transcript)
+    for i in range(len(trans.results)):
+        first_read.append(trans.results[i].alternatives[0].transcript)
     # print(first_read)
     mid_word = [[]]  # variavel para montar as palavras reconhecidas
     for x in range(len(first_read)):  # loop pra olhar quantas frases tem
