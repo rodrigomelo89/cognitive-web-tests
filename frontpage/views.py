@@ -4,23 +4,23 @@
 
 import sys
 sys.path.insert(1,'C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes')  # pra poder fazer os imports de outro dir
+# sys.path.insert(1,'/home/rodrigomelo89/rodrigomelo89.pythonanywhere.com/')  # pra poder fazer os imports de outro dir
 
-import fluencia, recording_pc, ggl_code, convert2wav
-from pydub import AudioSegment
-from django.shortcuts import render
+import fluencia, ggl_code, convert2wav
 from .models import Exame
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ExameForm, TestForm
-from django.http import HttpResponse
+from .forms import ExameForm
+import pathlib
 
 
-# trans = None  # variavel global pra salvar a transcrição
-file_path = 'C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\'  # variavel global pra salvar o caminho do audio
+path_test = pathlib.Path.cwd()
+file_path = path_test / "media/"
 
 
 def post_list(request):  # página inicial
-    global file_path
-    file_path = "C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\"  # reseta o valor do path
+    global file_path, path_test
+    # file_path = "C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\"  # reseta o valor do path
+    file_path = path_test/"media/"
     return render(request, 'frontpage/post.html', {})
 
 
@@ -41,8 +41,10 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
     if request.method == 'POST':  # aguarda o botão ser clicado
         # acessa variavel global do caminho do arquivo
         global file_path
-        if results.paciente not in file_path:
-            file_path += results.paciente + '_' + str(pk) +'.wav'  # adiciona o nome do arquivo
+        name = results.paciente + '_' + str(pk) +'.wav'  # cria variavel com o nome do paciente
+        print(file_path.name, type(request.FILES['banda']))
+        if name not in file_path.name:
+            file_path = file_path/name  # adiciona o nome do arquivo
         with open(file_path, 'wb+') as destination:  # abre o arquivo
             for chunk in request.FILES['banda'].chunks():
                 destination.write(chunk)  # salva o arquivo de audio
@@ -57,7 +59,7 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
 def respostas(request, pk):  # página onde será exibido os resultados
     result = Exame.objects.get(pk=pk)  # busca os dados do paciente correto
     global file_path
-    # print(file_path, 'aqui aqui aqui aqui')
+    print(file_path, 'aqui aqui aqui aqui')
     trans = ggl_code.transcribe_file(file_path)  # reconhece o audio
 
     result.transcri = trans.results[0].alternatives[0].transcript  # salva a transcrição na ficha do paciente
