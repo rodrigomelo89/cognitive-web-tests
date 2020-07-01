@@ -3,8 +3,8 @@
 # encoding: win-1252
 
 import sys
-sys.path.insert(1,'C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes')  # pra poder fazer os imports de outro dir
-# sys.path.insert(1,'/home/rodrigomelo89/rodrigomelo89.pythonanywhere.com/')  # pra poder fazer os imports de outro dir
+# sys.path.insert(1,'C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes')  # pra poder fazer os imports de outro dir
+sys.path.insert(1,'/home/rodrigomelo89/rodrigomelo89.pythonanywhere.com/')  # pra poder fazer os imports de outro dir
 
 import fluencia, ggl_code, convert2wav
 from .models import Exame
@@ -19,7 +19,6 @@ file_path = path_test / "media/"
 
 def post_list(request):  # página inicial
     global file_path, path_test
-    # file_path = "C:\\Users\\digo_\\Documents\\Codes\\fluencia-NAO\\codes\\media\\"  # reseta o valor do path
     file_path = path_test/"media/"
     return render(request, 'frontpage/post.html', {})
 
@@ -42,7 +41,7 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
         # acessa variavel global do caminho do arquivo
         global file_path
         name = results.paciente + '_' + str(pk) +'.wav'  # cria variavel com o nome do paciente
-        print(file_path.name, type(request.FILES['banda']))
+        # print(file_path.name, type(request.FILES['banda']))
         if name not in file_path.name:
             file_path = file_path/name  # adiciona o nome do arquivo
         with open(file_path, 'wb+') as destination:  # abre o arquivo
@@ -51,7 +50,7 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
         convert2wav.convert2wav(file_path, file_path)  # converte o arquivo em wav com 16 bits per sample
         results.audioRecorded.name = results.paciente + '_' + str(pk) +'.wav'  # salva o áudio na ficha do paciente
         results.save()
-        print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', file_path, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        # print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', file_path, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     # pra exibir a página do teste
     return render(request, 'frontpage/teste_cognitivo.html', {'paciente': results.paciente, 'key': pk})
 
@@ -59,15 +58,15 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
 def respostas(request, pk):  # página onde será exibido os resultados
     result = Exame.objects.get(pk=pk)  # busca os dados do paciente correto
     global file_path
-    print(file_path, 'aqui aqui aqui aqui')
+    # print(file_path, 'aqui aqui aqui aqui')
     trans = ggl_code.transcribe_file(file_path)  # reconhece o audio
-    print(trans)
+    print(trans, file= sys.stderr)
     result.transcri = fluencia.distinguish_words(trans)  # separa as palavras identificadas numa lista e salva na ficha
                                                         # do paciente
     result.nota, result.resultados = fluencia.fluencia(result.transcri)  # calcula a pontuação do teste e salva os
                                                                         # animais reconhecidos
     result.save()
-    print(result.transcri, result.transcri, result.nota, result.resultados)
+    # print(result.transcri, result.transcri, result.nota, result.resultados)
 
     # exibe a página de resultados
     return render(request, 'frontpage/resultados.html', {'results': result.resultados, 'palavras': result.transcri,

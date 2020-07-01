@@ -22,8 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 pasta = pathlib.Path.cwd()
-pasta_raiz = pasta.parent
-arq = pasta_raiz/"secret_key.txt"
+arq = pasta/"secret_key.txt"
 with open(arq) as f:
     SECRET_KEY = f.read().strip()
 

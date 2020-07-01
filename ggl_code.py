@@ -3,6 +3,7 @@
 # encoding: win-1252
 
 import io
+import pathlib
 import utils
 from google.cloud import speech_v1
 from google.cloud.speech_v1 import enums
@@ -10,9 +11,12 @@ from google.cloud.speech_v1 import types
 
 
 def transcribe_file(speech_file):
+    path_ = pathlib.Path.cwd()
+    path_ = path_/ 'teste de fluencia-2b49c4cc975c.json'
+
     """Transcribe the given audio file."""
-    client = speech_v1.SpeechClient()  # cria o cliente da API do google
-    # client = speech_v1.Client.from_service_account_json(path_test.parent / 'teste de fluencia-2b49c4cc975c.json')
+    # client = speech_v1.SpeechClient()  # cria o cliente da API do google
+    client = speech_v1.SpeechClient.from_service_account_json(path_)
 
     with io.open(speech_file, 'rb') as audio_file:  # abre o arquivo de audio
         content = audio_file.read()  # ler o conteudo
