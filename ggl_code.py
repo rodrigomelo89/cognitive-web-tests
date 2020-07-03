@@ -30,7 +30,6 @@ def transcribe_file(speech_file):
     )
 
     response = client.recognize(config, audio)  # reconhecimento do audio
-    # response = client.long_running_recognize(config, audio)  # reconhecimento do audio
 
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
