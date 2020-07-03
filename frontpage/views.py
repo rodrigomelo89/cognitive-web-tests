@@ -47,10 +47,6 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
         with open(file_path, 'wb+') as destination:  # abre o arquivo
             for chunk in request.FILES['banda'].chunks():
                 destination.write(chunk)  # salva o arquivo de audio
-        convert2wav.convert2wav(file_path, file_path)  # converte o arquivo em wav com 16 bits per sample
-        results.audioRecorded.name = results.paciente + '_' + str(pk) +'.wav'  # salva o áudio na ficha do paciente
-        results.save()
-        # print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', file_path, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     # pra exibir a página do teste
     return render(request, 'frontpage/teste_cognitivo.html', {'paciente': results.paciente, 'key': pk})
 
@@ -59,11 +55,31 @@ def respostas(request, pk):  # página onde será exibido os resultados
     result = Exame.objects.get(pk=pk)  # busca os dados do paciente correto
     global file_path
     # print(file_path, 'aqui aqui aqui aqui')
-    trans = ggl_code.transcribe_file(file_path)  # reconhece o audio
-    print(trans, file= sys.stderr)
-    result.transcri = fluencia.distinguish_words(trans)  # separa as palavras identificadas numa lista e salva na ficha
-                                                        # do paciente
-    result.nota, result.resultados = fluencia.fluencia(result.transcri)  # calcula a pontuação do teste e salva os
+    n = convert2wav.convert2wav(file_path, file_path)  # converte o arquivo em wav com 16 bits per sample
+    # print(n)
+    result.audioRecorded.name = result.paciente + '_' + str(pk) + '.wav'  # salva o áudio na ficha do paciente
+    if n >= 60000:
+        convert2wav.split_audio(file_path)
+        file = [file_path.parent / "chunk_1.wav", file_path.parent / "chunk_2.wav"]
+        # print(file)
+        trans = []
+        words = []
+        for f in range(2):
+            trans.append(ggl_code.transcribe_file(file[f]))  # reconhece o audio
+            # print(trans, file=sys.stderr)
+            # print(trans[f])
+            words.extend(fluencia.distinguish_words(trans[f]))
+            # print(words)
+        result.transcri = words  # separa as palavras identificadas numa lista e salva na ficha
+                                                            # do paciente
+        result.nota, result.resultados = fluencia.fluencia(words)  # calcula a pontuação do teste e salva os
+                                                                        # animais reconhecidos
+    else:
+        trans = ggl_code.transcribe_file(file_path)  # reconhece o audio
+        # print(trans, file=sys.stderr)
+        result.transcri = fluencia.distinguish_words(trans)  # separa as palavras identificadas numa lista e
+                                                            # salva na ficha do paciente
+        result.nota, result.resultados = fluencia.fluencia(result.transcri)  # calcula a pontuação do teste e salva os
                                                                         # animais reconhecidos
     result.save()
     # print(result.transcri, result.transcri, result.nota, result.resultados)

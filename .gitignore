@@ -11,3 +11,5 @@ db.sqlite3
 /media
 archive.html
 .DS_Store
+recording_pc.py
+secret_key.txt

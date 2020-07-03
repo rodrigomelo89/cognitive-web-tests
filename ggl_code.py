@@ -15,8 +15,8 @@ def transcribe_file(speech_file):
     path_ = path_/ 'teste de fluencia-2b49c4cc975c.json'
 
     """Transcribe the given audio file."""
-    # client = speech_v1.SpeechClient()  # cria o cliente da API do google
-    client = speech_v1.SpeechClient.from_service_account_json(path_)
+    client = speech_v1.SpeechClient()  # cria o cliente da API do google
+    # client = speech_v1.SpeechClient.from_service_account_json(path_)
 
     with io.open(speech_file, 'rb') as audio_file:  # abre o arquivo de audio
         content = audio_file.read()  # ler o conteudo
@@ -30,6 +30,7 @@ def transcribe_file(speech_file):
     )
 
     response = client.recognize(config, audio)  # reconhecimento do audio
+    # response = client.long_running_recognize(config, audio)  # reconhecimento do audio
 
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
