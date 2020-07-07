@@ -6,7 +6,7 @@ class ExameForm(forms.ModelForm):  # formulário
 
     class Meta:
         model = Exame  # busca o modelo
-        fields = ('paciente', 'idade', 'tempo_estudo', 'genero',)  #dados a serem preenchidos
+        fields = ('nome_completo', 'idade', 'tempo_de_estudo', 'genero',)  #dados a serem preenchidos
 
 
 class TestForm(forms.ModelForm):
