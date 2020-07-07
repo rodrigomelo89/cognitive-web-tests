@@ -40,7 +40,7 @@ def teste_cognitivo(request, pk):  # página onde será realizado o teste de flu
     if request.method == 'POST':  # aguarda o botão ser clicado
         # acessa variavel global do caminho do arquivo
         global file_path
-        name = results.nome_completo + '_' + str(pk) +'.wav'  # cria variavel com o nome do paciente
+        name = str(pk) + '_' + results.nome_completo +'.wav'  # cria variavel com o nome do paciente
         # print(file_path.name, type(request.FILES['banda']))
         if name not in file_path.name:
             file_path = file_path/name  # adiciona o nome do arquivo
@@ -57,7 +57,7 @@ def respostas(request, pk):  # página onde será exibido os resultados
     # print(file_path, 'aqui aqui aqui aqui')
     n = convert2wav.convert2wav(file_path, file_path)  # converte o arquivo em wav com 16 bits per sample
     # print(n)
-    result.audioRecorded.name = result.nome_completo + '_' + str(pk) + '.wav'  # salva o áudio na ficha do paciente
+    result.audioRecorded.name = str(pk) + '_' + result.nome_completo + '.wav'  # salva o áudio na ficha do paciente
     if n >= 60000:
         convert2wav.split_audio(file_path)
         file = [file_path.parent / "chunk_1.wav", file_path.parent / "chunk_2.wav"]

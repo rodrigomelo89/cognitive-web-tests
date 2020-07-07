@@ -4,9 +4,10 @@
     <h2>Novo Teste</h2>
     <div>
         <p>Por favor, preencha os dados abaixo.</p>
-        <p>O campo de tempo de estudo deve ser a quantidade de anos de estudo formal, i.e. anos na escola<br>
-            + anos no curso tecnico + anos na faculdade +  anos na pós-graduação. No caso, da realização <br>
-        de cursos ao mesmo tempo, conta apenas uma vez. Em outras palavras, anos em sala de aula.</p>
+        <p>O campo de tempo de estudo deve ser a quantidade de anos completos de estudo depois da alfabetização, <br>
+        i.e. anos na escola + anos no curso tecnico + anos na faculdade +  anos na pós-graduação. No caso, da <br>
+        realização de cursos ao mesmo tempo, conta apenas uma vez e no caso de abandono no meio do ano letivo, <br>
+        esse ano é desconsiderado. Em outras palavras, anos em sala de aula.</p>
     </div>
     <form method="POST" class="post-form">{% csrf_token %}
         {{ form.as_p }}

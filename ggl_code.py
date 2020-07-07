@@ -15,8 +15,8 @@ def transcribe_file(speech_file):
     path_ = path_/ 'teste de fluencia-2b49c4cc975c.json'
 
     """Transcribe the given audio file."""
-    client = speech_v1.SpeechClient()  # cria o cliente da API do google
-    # client = speech_v1.SpeechClient.from_service_account_json(path_)
+    # client = speech_v1.SpeechClient()  # cria o cliente da API do google
+    client = speech_v1.SpeechClient.from_service_account_json(path_)
 
     with io.open(speech_file, 'rb') as audio_file:  # abre o arquivo de audio
         content = audio_file.read()  # ler o conteudo
